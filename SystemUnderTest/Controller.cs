@@ -9,11 +9,13 @@ public class Controller
 {
     private readonly IRepository _repository;
     private readonly StateValidator _stateValidator;
+    private readonly Renderer _renderer;
 
     public Controller(IRepository repository)
     {
         _repository = repository;
         _stateValidator = new StateValidator();
+        _renderer = new Renderer();
     }
 
     public string Complete(string state, string code)
@@ -22,26 +24,13 @@ public class Controller
         try
         {
             if (_stateValidator.Validate(code, knownState))
-            {
-                if (knownState.isMobile)
-                    return "{\"success\": true, \"redirect\": \"" + knownState.redirect + "\"}";
-                else
-                    return "302 Location: " + knownState.redirect;
-            }
+                return _renderer.Success(knownState);
             else
-            {
-                if (knownState.isMobile)
-                    return "{\"success\": false, \"redirect\": \"login\"}";
-                else
-                    return "302 Location: login";
-            }
+                return _renderer.Failure(knownState);
         }
         catch (Exception e)
         {
-            if (knownState.isMobile)
-                return "{\"error\": \"" + e.Message + "\"}";
-            else
-                return "500";
+            return _renderer.Error(knownState, e);
         }
     }
 }
