@@ -1,6 +1,13 @@
 ﻿namespace SystemUnderTest;
 
-public class Renderer
+public interface IRenderer
+{
+    string Success((string expectedCode, bool isMobile, Uri redirect) knownState);
+    string Failure((string expectedCode, bool isMobile, Uri redirect) knownState);
+    string Error((string expectedCode, bool isMobile, Uri redirect) knownState, Exception e);
+}
+
+public class Renderer : IRenderer
 {
     public string Success((string expectedCode, bool isMobile, Uri redirect) knownState)
     {
