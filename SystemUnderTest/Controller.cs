@@ -8,10 +8,12 @@ public interface IRepository
 public class Controller
 {
     private readonly IRepository _repository;
+    private readonly StateValidator _stateValidator;
 
     public Controller(IRepository repository)
     {
         _repository = repository;
+        _stateValidator = new StateValidator();
     }
 
     public string Complete(string state, string code)
@@ -19,7 +21,7 @@ public class Controller
         var knownState = _repository.GetState(state);
         try
         {
-            if (Validate(code, knownState))
+            if (_stateValidator.Validate(code, knownState))
             {
                 if (knownState.isMobile)
                     return "{\"success\": true, \"redirect\": \"" + knownState.redirect + "\"}";
@@ -41,10 +43,5 @@ public class Controller
             else
                 return "500";
         }
-    }
-
-    private static bool Validate(string code, (string expectedCode, bool isMobile, Uri redirect) knownState)
-    {
-        return code == knownState.expectedCode;
     }
 }
